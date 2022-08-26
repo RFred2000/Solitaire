@@ -8,9 +8,9 @@ public class Card {
     /** The suit of the card  */
     private String suit;
     /** The face value of the card */
-    private String value;
+    private int value;
 
-    public Card(String suit, String value){
+    public Card(String suit, int value){
         this.suit = suit;
         this.value = value;
     }
@@ -19,7 +19,7 @@ public class Card {
         return suit;
     }
 
-    public String get_value(){
+    public int get_value(){
         return value;
     }
 }

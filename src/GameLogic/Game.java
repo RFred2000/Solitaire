@@ -24,12 +24,30 @@ public class Game {
 
     public Game(){
         Vector<Card> starterDeck = new Vector<Card>();
-        starterDeck.add(new Card("diamonds", "two"));
-        starterDeck.add(new Card("diamonds", "three"));
-        starterDeck.add(new Card("diamonds", "four"));
+
+        Vector<String> suits = new Vector<String();
+        suits.add("diamonds");
+        suits.add("hearts");
+        suits.add("spades");
+        suits.add("clubs");
+
+        for(int i = 0; i < suits.size(); ++i){
+            for(int x = 0; x < 13; ++x){
+                starterDeck.add(new Card(suits.get(i), x+1));
+            }
+        }
+
+        Random rand = new Random();
+
+        for(int i = 0; i < 500; ++i){
+            int temp = rand.nextInt(52);
+            starterDeck.add(starterDeck.get(temp));
+            starterDeck.remove(temp);
+        }
+
+
 
         deck = new Deck(starterDeck);
-
         playPile = new PlayPile();
         wastePile = new WastePile();
     }

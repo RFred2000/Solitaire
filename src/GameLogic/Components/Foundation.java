@@ -8,6 +8,15 @@ import java.util.*;
  */
 public class Foundation {
     private Vector<Card> contents;
+    private String suit;
+
+    public Foundation(String suit){
+        this.suit = suit;
+    }
+
+    public boolean can_add_card(Card card){
+        return card.get_suit() == suit && card.get_value() > contents.get(0).get_value();
+    }
 
     /**
      * Adds a card to the top of a foundation
@@ -32,6 +41,6 @@ public class Foundation {
      * @return Boolean stating whether this foundation is complete
      */
     public boolean is_complete(){
-        return contents.firstElement().get_value() == "king";
+        return contents.firstElement().get_value() == 13;
     }
 }
