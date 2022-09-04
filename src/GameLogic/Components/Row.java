@@ -10,22 +10,36 @@ public class Row {
         contents = starterCards;
     }
 
-    public Card get_top_card(){
-        Card temp = contents.get(0);
-        contents.remove(0);
+    public Vector<Card> popOffTopCards(int cards_from_bottom){
+        Vector<Card> temp = new Vector<Card>();
+        for(int i = 0; i < cards_from_bottom; ++i){
+            temp.insertElementAt(contents.firstElement(), 0);
+            contents.remove(0);
+        }
+
+        if(!contents.isEmpty() && !contents.lastElement().flipped){
+            contents.firstElement().flipped = true;
+        }
+
         return temp;
     }
 
-    public void add_card(Card card){
-        contents.insertElementAt(card, 0);
+    public void addCards(Vector<Card> cards){
+        while(cards.size() > 0){
+            contents.insertElementAt(cards.lastElement(), 0);
+            contents.remove(contents.size());
+        }
     }
 
-    public boolean can_add_card(Card card){
-        if(contents.get(0).get_suit() == "diamonds" || contents.get(0).get_suit() == "hearts"){
-            return (card.get_suit() == "clubs" || card.get_suit() == "spades") && card.get_value() < contents.get(0).get_value();
+    public boolean canAddCards(Vector<Card> cards){
+        if (contents.isEmpty() && cards.lastElement().value == 13){
+            return true;
+        }
+        else if(contents.get(0).suit == "diamonds" || contents.get(0).suit == "hearts"){
+            return (cards.lastElement().suit == "clubs" || cards.lastElement().suit == "spades") && cards.lastElement().value < contents.get(0).value;
         }
         else {
-            return (card.get_suit() == "diamonds" || card.get_suit() == "hearts") && card.get_value() < contents.get(0).get_value();
+            return (cards.lastElement().suit == "diamonds" || cards.lastElement().suit == "hearts") && cards.lastElement().value < contents.get(0).value;
         }
     }
 }

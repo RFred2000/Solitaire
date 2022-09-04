@@ -1,25 +1,21 @@
 package GameLogic.Components;
 
-/**
- * Represents a single card in the game of solitaire
- * @author Richie
- */
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+
 public class Card {
-    /** The suit of the card  */
-    private String suit;
-    /** The face value of the card */
-    private int value;
 
-    public Card(String suit, int value){
-        this.suit = suit;
-        this.value = value;
-    }
-
-    public String get_suit(){
-        return suit;
-    }
-
-    public int get_value(){
-        return value;
-    }
+    public String suit;
+    public int value;
+    public boolean flipped;
+    public boolean moveable;
+    public int xLocation;
+    public int yLocation;
+    public int width;
+    public int height;
+    public int depth;
+    public BufferedImage image;
 }

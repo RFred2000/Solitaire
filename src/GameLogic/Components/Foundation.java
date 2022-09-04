@@ -2,45 +2,31 @@ package GameLogic.Components;
 
 import java.util.*;
 
-/**
- * Represents a single foundation in the game of solitaire
- * @author Richie
- */
 public class Foundation {
+
     private Vector<Card> contents;
     private String suit;
 
     public Foundation(String suit){
         this.suit = suit;
+        contents = new Vector<Card>();
     }
 
-    public boolean can_add_card(Card card){
-        return card.get_suit() == suit && card.get_value() > contents.get(0).get_value();
+    public boolean canAddCard(Card card){
+        return (card.suit == this.suit) && ((contents.isEmpty() && card.value == 1) || card.value > contents.get(0).value);
     }
 
-    /**
-     * Adds a card to the top of a foundation
-     * @param card
-     */
-    public void add_card(Card card){
+    public void addCard(Card card){
         contents.insertElementAt(card, 0);
     }
 
-    /**
-     * Retrieves the top card from the foundation
-     * @return The top card on the foundation
-     */
-    public Card get_top_card(){
+    public Card popOffTopCard(){
         Card temp = contents.firstElement();
         contents.remove(0);
         return temp;
     }
 
-    /**
-     * Checks the foundation for completion
-     * @return Boolean stating whether this foundation is complete
-     */
     public boolean is_complete(){
-        return contents.firstElement().get_value() == 13;
+        return contents.firstElement().value == 13;
     }
 }
