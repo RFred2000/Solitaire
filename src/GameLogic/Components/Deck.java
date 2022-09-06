@@ -27,4 +27,8 @@ public class Deck {
         contents = cards;
     }
 
+    public boolean isEmpty(){
+        return contents.isEmpty();
+    }
+
 }

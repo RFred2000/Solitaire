@@ -1,7 +1,12 @@
 package GameLogic;
 
 import GameLogic.Components.*;
+import Interface.Board;
+import Interface.Physics;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
 import java.util.*;
 
 public class Game {
@@ -10,12 +15,13 @@ public class Game {
     private PlayPile playPile;
     private WastePile wastePile;
     private Vector<Row> rows;
-    private Foundation spadesFoundation;
-    private Foundation clubsFoundation;
-    private Foundation heartsFoundation;
-    private Foundation diamondsFoundation;
+    private Vector<Foundation> foundations;
 
-    public Game() {
+    private Board board;
+
+    public Game(Board board, Physics physics) {
+
+        // Creating bank of cards
         Vector<Card> starterDeck = new Vector<Card>();
 
         Vector<String> suits = new Vector<String>();
@@ -28,18 +34,63 @@ public class Game {
             for (int x = 0; x < 13; ++x) {
                 Card tempCard = new Card();
                 tempCard.suit = suits.get(i);
-                tempCard.value = x;
+                tempCard.value = x+1;
                 tempCard.flipped = false;
+                tempCard.moveable = false;
+                tempCard.visible = true;
+                tempCard.width = Physics.CARD_WIDTH;
+                tempCard.height = Physics.CARD_HEIGHT;
+                tempCard.location = new Point();
+                tempCard.location.x = Physics.DECK_LOCATION.x;
+                tempCard.location.y = Physics.DECK_LOCATION.y;
+                tempCard.owner = "deck";
+                tempCard.depth = 0;
                 starterDeck.add(tempCard);
             }
         }
 
+        // Assigning images to them
         for(int i = 0; i < starterDeck.size(); ++i){
             String start;
 
-            if
+            switch(starterDeck.get(i).value){
+
+                case 11:
+                    start = "jack";
+                    break;
+                case 12:
+                    start = "queen";
+                    break;
+                case 13:
+                    start = "king";
+                    break;
+                case 1:
+                    start = "ace";
+                    break;
+                default:
+                    start = String.valueOf(starterDeck.get(i).value);
+                    break;
+            }
+
+            String fileName = start + "_of_" + starterDeck.get(i).suit + ".png";
+
+            try {
+                starterDeck.get(i).image = ImageIO.read(new File("./Resources/CardPictures/" + fileName));
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
 
+        // Connecting components
+        board.attachCards(new Vector<Card>(starterDeck));
+        physics.attachCards(new Vector<Card>(starterDeck));
+        board.addMouseListener(physics);
+        board.addMouseMotionListener(physics);
+        this.board = board;
+
+        // Shuffling the cards
         Random rand = new Random();
 
         for (int i = 0; i < 500; ++i) {
@@ -48,6 +99,7 @@ public class Game {
             starterDeck.remove(temp);
         }
 
+        // Dealing the rows of solitaire
         Vector<Vector<Card>> rowContents = new Vector<Vector<Card>>();
         for (int i = 0; i < 7; ++i) {
             rowContents.add(new Vector<Card>());
@@ -55,10 +107,16 @@ public class Game {
 
         for (int i = 0; i < rowContents.size(); ++i) {
             for (int x = 0; x < i + 1; ++x) {
+                starterDeck.firstElement().location.y = (int) Math.round(Physics.ROW_LOCATIONS.get(i).y + (i-x) * (0.2 * Physics.CARD_HEIGHT));
+                starterDeck.firstElement().location.x = Physics.ROW_LOCATIONS.get(i).x;
+                starterDeck.firstElement().depth = i-x;
+                starterDeck.firstElement().owner = "row";
+                starterDeck.firstElement().ownerSubAddress = i;
                 rowContents.get(i).add(starterDeck.firstElement());
                 starterDeck.remove(0);
                 if (x == 0) {
                     rowContents.get(i).firstElement().flipped = true;
+                    rowContents.get(i).firstElement().moveable = true;
                 }
             }
         }
@@ -71,14 +129,20 @@ public class Game {
         deck = new Deck(starterDeck);
         playPile = new PlayPile();
         wastePile = new WastePile();
+        foundations = new Vector<Foundation>();
+        for(int i = 0; i < 4; ++i){
+            foundations.add(new Foundation(suits.get(i)));
+        }
 
-        spadesFoundation = new Foundation("spades");
-        clubsFoundation = new Foundation("clubs");
-        heartsFoundation = new Foundation("hearts");
-        diamondsFoundation = new Foundation("diamonds");
+        physics.attachDeck(deck);
+        physics.attachPlayPile(playPile);
+        physics.attachWastePile(wastePile);
+        physics.attachRows(rows);
+        physics.attachFoundations(foundations);
+
     }
 
-    public void deal() {
-
+    public void tick(){
+        board.repaint();
     }
 }

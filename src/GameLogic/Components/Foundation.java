@@ -17,7 +17,9 @@ public class Foundation {
     }
 
     public void addCard(Card card){
+        card.depth = contents.size();
         contents.insertElementAt(card, 0);
+
     }
 
     public Card popOffTopCard(){
