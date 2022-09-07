@@ -1,13 +1,16 @@
 package GameLogic.Components;
 
+import Interface.Physics;
+
+import java.awt.*;
 import java.util.*;
 
 public class Deck {
 
     private Vector<Card> contents;
 
-    public Deck(Vector<Card> newDeck){
-        contents = newDeck;
+    public Deck(Vector<Card> contents){
+        this.contents = contents;
     }
 
     public Vector<Card> popOffDeal(){
@@ -24,6 +27,15 @@ public class Deck {
     }
 
     public void setContents(Vector<Card> cards){
+        for(int i = 0; i < cards.size(); ++i){
+            cards.get(i).location = new Point(Physics.DECK_LOCATION);
+            cards.get(i).flipped = false;
+            cards.get(i).visible = true;
+            cards.get(i).movable = false;
+            cards.get(i).depth = 0;
+            cards.get(i).owner = "deck";
+        }
+
         contents = cards;
     }
 

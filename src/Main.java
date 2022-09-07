@@ -1,7 +1,4 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.io.File;
-import java.util.*;
 
 import Interface.Board;
 import GameLogic.Game;
@@ -23,6 +20,9 @@ public class Main {
         frame.setVisible(true);
 
         while(true){
+            if(game.gameWon()){
+                System.exit(0);
+            }
             game.tick();
         }
     }

@@ -10,12 +10,6 @@ abstract class Pile {
         contents = new Vector<Card>();
     }
 
-    public void addContents(Vector<Card> set){
-        for(int i = 0; i < set.size(); ++i){
-            contents.add(set.get(i));
-        }
-    }
-
     public Vector<Card> popOffContents() {
         Vector<Card> temp = new Vector<Card>(contents);
         contents.clear();

@@ -36,10 +36,8 @@ public class Game {
                 tempCard.suit = suits.get(i);
                 tempCard.value = x+1;
                 tempCard.flipped = false;
-                tempCard.moveable = false;
+                tempCard.movable = false;
                 tempCard.visible = true;
-                tempCard.width = Physics.CARD_WIDTH;
-                tempCard.height = Physics.CARD_HEIGHT;
                 tempCard.location = new Point();
                 tempCard.location.x = Physics.DECK_LOCATION.x;
                 tempCard.location.y = Physics.DECK_LOCATION.y;
@@ -116,22 +114,24 @@ public class Game {
                 starterDeck.remove(0);
                 if (x == 0) {
                     rowContents.get(i).firstElement().flipped = true;
-                    rowContents.get(i).firstElement().moveable = true;
+                    rowContents.get(i).firstElement().movable = true;
                 }
             }
         }
 
         rows = new Vector<Row>();
         for (int i = 0; i < 7; ++i) {
-            rows.add(new Row(rowContents.get(i)));
+            rows.add(new Row(rowContents.get(i), i));
         }
 
         deck = new Deck(starterDeck);
         playPile = new PlayPile();
         wastePile = new WastePile();
+
+        // Making the foundations
         foundations = new Vector<Foundation>();
         for(int i = 0; i < 4; ++i){
-            foundations.add(new Foundation(suits.get(i)));
+            foundations.add(new Foundation("empty", i));
         }
 
         physics.attachDeck(deck);
@@ -140,9 +140,21 @@ public class Game {
         physics.attachRows(rows);
         physics.attachFoundations(foundations);
 
+        board.attachDeck(deck);
+        board.attachPlayPile(playPile);
+        board.attachWastePile(wastePile);
+
     }
 
     public void tick(){
         board.repaint();
+    }
+
+    public boolean gameWon(){
+        boolean temp = true;
+        for(int i = 0; i < 4; ++i) {
+            temp = temp && foundations.get(i).is_complete();
+        }
+        return temp;
     }
 }
