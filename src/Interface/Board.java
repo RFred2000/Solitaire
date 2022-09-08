@@ -41,7 +41,7 @@ public class Board extends JPanel {
     public Board(){
         try {
             flippedImage = ImageIO.read(new File("./Resources/CardPictures/back_of_card.png"));
-            backgroundPicture = ImageIO.read(new File("./Resources/pexels-fwstudio-172277.jpg"));
+            backgroundPicture = ImageIO.read(new File("./Resources/Background.jpg"));
         }
         catch (Exception e){
             e.printStackTrace();
