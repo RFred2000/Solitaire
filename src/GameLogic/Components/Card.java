@@ -5,6 +5,12 @@ import java.awt.image.BufferedImage;
 
 public class Card {
 
+    public Card(String suit, int value){
+        this.suit = suit;
+        this.value = value;
+        this.location = new Point();
+    }
+
     public String suit;
     public int value;
 
@@ -15,8 +21,7 @@ public class Card {
     public Point location;
     public int depth;
 
-    public String owner;
-    public int ownerSubAddress;
+    public CardPlayContainer owner;
     public Card parentCard;
     public Card childCard;
 

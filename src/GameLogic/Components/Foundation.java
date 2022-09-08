@@ -1,63 +1,82 @@
 package GameLogic.Components;
 
-import Interface.Physics;
-
 import java.awt.*;
 import java.util.*;
 
-public class Foundation {
+public class Foundation extends CardPlayContainer {
 
     private Vector<Card> contents;
     private String suit;
-    private int foundationNumber;
-    private Point foundationLocation;
 
-    public Foundation(String suit, int foundationNumber){
-        this.suit = suit;
-        this.foundationNumber = foundationNumber;
-        contents = new Vector<Card>();
-        this.foundationLocation = Physics.FOUNDATION_LOCATIONS.get(foundationNumber);
+    public Foundation(Point foundationLocation){
+        this.playBoxLocation = foundationLocation;
+        this.suit = "empty";
+        this.contents = new Vector<Card>();
     }
 
-    public boolean canAddCard(Card card){
-        if (this.suit == "empty"){
-            return card.value == 1;
-        }
-        else {
-            if (card.suit == this.suit) {
-                if (contents.isEmpty()) {
-                    return card.value == 1;
-                } else {
-                    return card.value == contents.firstElement().value + 1;
-                }
-            } else {
-                return false;
-            }
-        }
-    }
+    @Override
+    public Vector<Card> pickupCards(int numCards) throws Exception {
 
-    public void addCard(Card card){
-        if(this.suit == "empty"){
-            this.suit = card.suit;
+        if(numCards > 1){
+            throw new Exception("Foundation cannot pop off more than one card");
         }
 
-        card.depth = contents.size();
-        card.location = new Point(Physics.FOUNDATION_LOCATIONS.get(foundationNumber));
-        card.owner = "foundation";
-        card.ownerSubAddress = foundationNumber;
-        contents.insertElementAt(card, 0);
-
-    }
-
-    public Card popOffTopCard(){
-        Card temp = contents.firstElement();
+        Vector<Card> tempCards = new Vector<Card>();
+        tempCards.add(contents.firstElement());
         contents.remove(0);
+
         if(contents.isEmpty()){
             suit = "empty";
         }
 
-        return temp;
+        return tempCards;
     }
+
+    @Override
+    public void placeCards(Vector<Card> cards) throws Exception {
+
+        if(cards.size() > 1){
+            throw new Exception("Foundation cannot accept more than one card at a time");
+        }
+
+        Card tempCard = cards.get(0);
+
+        if(this.suit == "empty"){
+            this.suit = tempCard.suit;
+        }
+
+        tempCard.depth = contents.size();
+        tempCard.location = new Point(playBoxLocation);
+        tempCard.owner = this;
+        contents.insertElementAt(tempCard, 0);
+
+    }
+
+    @Override
+    public boolean canPlaceCards(Vector<Card> cards){
+
+        if(cards.size() > 1){
+            return false;
+        }
+
+        Card temp = cards.get(0);
+
+        if (this.suit == "empty"){
+            return temp.value == 1;
+        }
+
+        if (temp.suit == this.suit) {
+            if (contents.isEmpty()) {
+                return temp.value == 1;
+            }
+
+            return temp.value == contents.firstElement().value + 1;
+        }
+
+        return false;
+    }
+
+
 
     public boolean is_complete(){
         if(!contents.isEmpty()) {
@@ -66,9 +85,5 @@ public class Foundation {
         else {
             return false;
         }
-    }
-
-    public Point getFoundationLocation(){
-        return new Point(foundationLocation);
     }
 }

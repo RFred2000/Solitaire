@@ -32,17 +32,7 @@ public class Game {
 
         for (int i = 0; i < suits.size(); ++i) {
             for (int x = 0; x < 13; ++x) {
-                Card tempCard = new Card();
-                tempCard.suit = suits.get(i);
-                tempCard.value = x+1;
-                tempCard.flipped = false;
-                tempCard.movable = false;
-                tempCard.visible = true;
-                tempCard.location = new Point();
-                tempCard.location.x = Physics.DECK_LOCATION.x;
-                tempCard.location.y = Physics.DECK_LOCATION.y;
-                tempCard.owner = "deck";
-                tempCard.depth = 0;
+                Card tempCard = new Card(suits.get(i), x+1);
                 starterDeck.add(tempCard);
             }
         }
@@ -105,33 +95,25 @@ public class Game {
 
         for (int i = 0; i < rowContents.size(); ++i) {
             for (int x = 0; x < i + 1; ++x) {
-                starterDeck.firstElement().location.y = (int) Math.round(Physics.ROW_LOCATIONS.get(i).y + (i-x) * (0.2 * Physics.CARD_HEIGHT));
-                starterDeck.firstElement().location.x = Physics.ROW_LOCATIONS.get(i).x;
-                starterDeck.firstElement().depth = i-x;
-                starterDeck.firstElement().owner = "row";
-                starterDeck.firstElement().ownerSubAddress = i;
                 rowContents.get(i).add(starterDeck.firstElement());
                 starterDeck.remove(0);
-                if (x == 0) {
-                    rowContents.get(i).firstElement().flipped = true;
-                    rowContents.get(i).firstElement().movable = true;
-                }
             }
         }
 
         rows = new Vector<Row>();
         for (int i = 0; i < 7; ++i) {
-            rows.add(new Row(rowContents.get(i), i));
+            rows.add(new Row(rowContents.get(i), Physics.ROW_LOCATIONS.get(i)));
         }
 
         deck = new Deck(starterDeck);
+
         playPile = new PlayPile();
         wastePile = new WastePile();
 
         // Making the foundations
         foundations = new Vector<Foundation>();
         for(int i = 0; i < 4; ++i){
-            foundations.add(new Foundation("empty", i));
+            foundations.add(new Foundation(Physics.FOUNDATION_LOCATIONS.get(i)));
         }
 
         physics.attachDeck(deck);

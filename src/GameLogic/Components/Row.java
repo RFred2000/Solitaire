@@ -5,47 +5,54 @@ import Interface.Physics;
 import java.awt.*;
 import java.util.*;
 
-public class Row {
+public class Row extends CardPlayContainer{
 
     private Vector<Card> contents;
-    private int rowNumber;
-    private Point lastCardLocation;
 
-    public Row(Vector<Card> starterCards, int rowNumber){
-        contents = starterCards;
-        this.rowNumber = rowNumber;
-        this.lastCardLocation = new Point(contents.firstElement().location);
+    public Row(Vector<Card> contents, Point rowLocation){
+
+        for(int i = 0; i < contents.size(); ++i){
+            contents.get(i).location.x = rowLocation.x;
+            contents.get(i).location.y = (int) Math.round(rowLocation.y + 0.2*(contents.size()-1-i)*Physics.CARD_HEIGHT);
+            contents.get(i).depth = contents.size()-1-i;
+            contents.get(i).owner = this;
+            contents.get(i).visible = true;
+        }
+        this.contents = contents;
+        this.contents.firstElement().flipped = true;
+        this.contents.firstElement().movable = true;
+
+        this.playBoxLocation = new Point(this.contents.firstElement().location);
     }
 
-    public Vector<Card> popOffTopCards(int cards_from_bottom){
+    @Override
+    public Vector<Card> pickupCards(int numCards){
         Vector<Card> temp = new Vector<Card>();
-        for(int i = 0; i < cards_from_bottom; ++i){
+        for(int i = 0; i < numCards; ++i){
             temp.insertElementAt(contents.firstElement(), 0);
             contents.remove(0);
         }
 
         temp.firstElement().parentCard = null;
 
-        if(!contents.isEmpty() && !contents.lastElement().flipped){
+        if(!contents.isEmpty()){
             contents.firstElement().flipped = true;
             contents.firstElement().movable = true;
-        }
-
-        if(!contents.isEmpty()){
             contents.firstElement().childCard = null;
-            lastCardLocation = new Point(contents.firstElement().location);
+            playBoxLocation.y -= numCards*0.2*Physics.CARD_HEIGHT;
         }
         else {
-            lastCardLocation = Physics.ROW_LOCATIONS.get(rowNumber);
+            playBoxLocation.y -= (numCards-1)*0.2*Physics.CARD_HEIGHT;
         }
 
         return temp;
     }
 
-    public void addCards(Vector<Card> cards){
+    @Override
+    public void placeCards(Vector<Card> cards){
+
         for(int i = 0; i < cards.size(); ++i){
-            cards.get(i).owner = "row";
-            cards.get(i).ownerSubAddress = rowNumber;
+            cards.get(i).owner = this;
             if(!contents.isEmpty()) {
                 cards.get(i).depth = contents.firstElement().depth + 1;
                 contents.firstElement().childCard = cards.get(i);
@@ -55,14 +62,17 @@ public class Row {
             }
             else {
                 cards.get(i).depth = 0;
-                cards.get(i).location = Physics.ROW_LOCATIONS.get(rowNumber);
+                cards.get(i).location = new Point(playBoxLocation);
             }
             contents.insertElementAt(cards.get(i), 0);
         }
-        this.lastCardLocation = new Point(contents.firstElement().location);
+        this.playBoxLocation = new Point(contents.firstElement().location);
     }
 
-    public boolean canAddCard(Card card){
+    @Override
+    public boolean canPlaceCards(Vector<Card> cards){
+        Card card = cards.firstElement();
+
         if (contents.isEmpty()){
             return card.value == 13;
         }
@@ -73,19 +83,6 @@ public class Row {
             else {
                 return (card.suit == "diamonds" || card.suit == "hearts") && card.value == contents.get(0).value-1 && card.value != 1;
             }
-        }
-    }
-
-    public boolean isEmpty(){
-        return contents.isEmpty();
-    }
-
-    public Point getLastCardLocation(){
-        if(contents.isEmpty()){
-            return Physics.ROW_LOCATIONS.get(rowNumber);
-        }
-        else {
-            return lastCardLocation;
         }
     }
 }

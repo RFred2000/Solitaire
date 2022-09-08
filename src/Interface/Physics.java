@@ -125,7 +125,7 @@ public class Physics extends MouseAdapter {
             }
             else {
                 wastePile.addContents(playPile.popOffContents());
-                playPile.addContents(deck.popOffDeal());
+                playPile.addContents(deck.popOffDDeal());
             }
         }
     }
@@ -168,112 +168,74 @@ public class Physics extends MouseAdapter {
     public void mouseReleased(MouseEvent e) {
         if (movingCard != null) {
 
-            try {
+            boolean moveHappened = true;
 
-                String moveLocation = null;
-                int rowNumber = -1;
-                int foundationNumber = -1;
+            CardPlayContainer moveLocation = null;
 
-                for(int i = 0; i < rows.size(); ++i){
-                    if(cardClicked(e.getPoint(), rows.get(i).getLastCardLocation())){
-                        moveLocation = "row";
-                        rowNumber = i;
-                        break;
-                    }
+            for(int i = 0; i < rows.size(); ++i){
+                if(rows.get(i) == movingCard.owner){
+                    continue;
                 }
 
-                if(moveLocation == null) {
-                    for (int i = 0; i < foundations.size(); ++i) {
-                        if(cardClicked(e.getPoint(), foundations.get(i).getFoundationLocation())){
-                            moveLocation = "foundation";
-                            foundationNumber = i;
-                        }
-                    }
+                if(cardClicked(e.getPoint(), rows.get(i).getPlayBoxLocation())){
+                    moveLocation = rows.get(i);
+                    break;
                 }
+            }
 
-                if(moveLocation == null){
-                    throw new Exception("No Move");
-                }
+            if(moveLocation == null) {
 
-                if (movingCard.owner.equals("play pile")) {
-
-                    if (moveLocation.equals("foundation") && foundations.get(foundationNumber).canAddCard(movingCard)) {
-                        foundations.get(foundationNumber).addCard(playPile.popOffTopCard());
-
-                    } else if (moveLocation.equals("row") && rows.get(rowNumber).canAddCard(movingCard)) {
-                        // Pop off the card from the play pile
-                        Card playPileCard = playPile.popOffTopCard();
-
-                        // Add the card to the row
-                        Vector<Card> tempCardVector = new Vector<Card>();
-                        tempCardVector.add(playPileCard);
-                        rows.get(rowNumber).addCards(tempCardVector);
-
-                    } else {
-                        throw new Exception("No Move");
+                for (int i = 0; i < foundations.size(); ++i) {
+                    if(foundations.get(i) == movingCard.owner){
+                        continue;
                     }
-                } else if (movingCard.owner.equals("foundation")) {
-                    if (moveLocation.equals("foundation") && foundations.get(foundationNumber).canAddCard(movingCard)){
-                        foundations.get(foundationNumber).addCard(foundations.get(movingCard.ownerSubAddress).popOffTopCard());
-                    }
-                    else if (moveLocation.equals("row") && rows.get(rowNumber).canAddCard(movingCard)) {
-                        // Pop the top card off of the foundation
-                        Card foundationCard = foundations.get(foundationNumber).popOffTopCard();
-
-                        // Add the card to the row
-                        Vector<Card> tempCardVector = new Vector<Card>();
-                        tempCardVector.add(foundationCard);
-                        rows.get(rowNumber).addCards(tempCardVector);
-                    } else {
-                        throw new Exception("No Move");
-                    }
-                } else if (movingCard.owner.equals("row")) {
-
-                    // Figure out how many cards are moving
-                    int cardsToMove = 0;
-                    Card currentCard = movingCard;
-                    while (currentCard != null) {
-                        cardsToMove += 1;
-                        currentCard = currentCard.childCard;
-                    }
-
-                    if (moveLocation.equals("foundation") && cardsToMove == 1 && foundations.get(foundationNumber).canAddCard(movingCard)) {
-                        // Pop the cards off of the row
-                        Vector<Card> movingCards = rows.get(movingCard.ownerSubAddress).popOffTopCards(cardsToMove);
-
-                        // Add the conditioned cards to the foundation
-                        foundations.get(foundationNumber).addCard(movingCards.firstElement());
-                    } else if (moveLocation.equals("row") && rows.get(rowNumber).canAddCard(movingCard)) {
-                        // Add the cards to the new row
-                        rows.get(rowNumber).addCards(rows.get(movingCard.ownerSubAddress).popOffTopCards(cardsToMove));
-                    } else {
-                        throw new Exception("No Move");
+                    if (cardClicked(e.getPoint(), foundations.get(i).getPlayBoxLocation())) {
+                        moveLocation = foundations.get(i);
                     }
                 }
             }
-            catch(Exception exception) {
-                if (exception.getMessage() == "No Move") {
 
-                    int index = 0;
-                    Card currentCard = movingCard;
+            if(moveLocation != null){
 
-                    while(currentCard != null){
-                        currentCard.location = new Point(movingCardPriorLocations.get(index));
-                        currentCard.depth = movingCardPriorDepths.get(index);
-                        currentCard = currentCard.childCard;
-                        ++index;
+                Vector<Card> cardsMoving = new Vector<Card>();
+                Card currentCard = movingCard;
+                while(currentCard != null){
+                    cardsMoving.add(currentCard);
+                    currentCard = currentCard.childCard;
+                }
+
+                if(moveLocation.canPlaceCards(cardsMoving)){
+                    try {
+                        moveLocation.placeCards(movingCard.owner.pickupCards(cardsMoving.size()));
+                    }
+                    catch (Exception exception){
+                        exception.printStackTrace();
                     }
                 }
                 else {
-                    exception.printStackTrace();
-                    System.exit(-1);
+                    moveHappened = false;
                 }
             }
-            finally {
-                movingCard = null;
-                movingCardPriorDepths.clear();
-                movingCardPriorLocations.clear();
+            else {
+                moveHappened = false;
             }
+
+            if(moveHappened == false){
+                int index = 0;
+                Card currentCard = movingCard;
+
+                while(currentCard != null){
+                    currentCard.location = new Point(movingCardPriorLocations.get(index));
+                    currentCard.depth = movingCardPriorDepths.get(index);
+                    currentCard = currentCard.childCard;
+                    ++index;
+                }
+            }
+
+            movingCard = null;
+            movingCardPriorDepths.clear();
+            movingCardPriorLocations.clear();
+
         }
     }
 
